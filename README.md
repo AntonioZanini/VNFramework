@@ -1,2 +1,2 @@
 # VNFramework
- Personal Framework for Visual Novel on Unity.
+ Personal Framework for Visual Novel development on Unity

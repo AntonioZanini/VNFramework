@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace VNFramework.Interfaces.Scene
+﻿namespace VNFramework.Interfaces.Scene
 {
     public interface IScripter
     {
-        void Initialize();
-        void ExecuteNext();
+        ICommandFactory CommandFactory { get; set; }
+        void Initialize(IScriptText scriptText);
+        void Execute();
     }
 }
