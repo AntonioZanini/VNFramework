@@ -10,12 +10,15 @@ using VNFramework.Core.Helpers;
 using Assets.Scripts.VNFramework.Core.Input;
 using VNFramework.Interfaces.Input;
 using System;
+using VNFramework.Interfaces.Scene;
+using VNFramework.Core.Scene;
 
 public class Test : MonoBehaviour, IInputHandler
 {
     DialogueSystem dialogueSystem;
     ICharacterManager characterManager;
     SingleLayerCharacter character;
+    IScripter scripter;
     // Start is called before the first frame update
 
     public static Test Instance { get; private set; }
@@ -45,6 +48,8 @@ public class Test : MonoBehaviour, IInputHandler
             }
             
         };
+        GlobalSetup.Instance.DialogueSystem = dialogueSystem;
+
         characterManager = new CharacterManager()
         {
             CharacterPanel = CharacterSetup.Instance.CharacterPanelRect
@@ -54,6 +59,9 @@ public class Test : MonoBehaviour, IInputHandler
         character.Renderer.SetSprite(GetSprite("neutral"));//Transition(ResourceHelpers.LoadCharacterSingleSprite("Miu"), 1f, false);
         character.Enabled = true;
 
+        scripter = new Scripter();
+        scripter.CommandFactory = new CommandFactory();
+        scripter.Initialize(new ScriptText());
     }
     int indexSpeech = 0;
     int indexSprite = 0;
@@ -89,9 +97,10 @@ public class Test : MonoBehaviour, IInputHandler
 
     private void AdvanceDialog()
     {
-        indexSpeech++;
-        indexSpeech = indexSpeech >= colors.Length ? 0 : indexSpeech;
-        Say();
+        //indexSpeech++;
+        //indexSpeech = indexSpeech >= colors.Length ? 0 : indexSpeech;
+        //Say();
+        scripter.Execute();
     }
 
     private void Say()

@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using VNFramework.Interfaces.Dialogue;
 using VNFramework.Interfaces.Input;
 
 namespace VNFramework.Interfaces.Global
@@ -7,5 +8,6 @@ namespace VNFramework.Interfaces.Global
     {
         MonoBehaviour GameObject { get; }
         IInputManager InputManager { get; }
+        IDialogueSystem DialogueSystem { get; set; }
     }
 }

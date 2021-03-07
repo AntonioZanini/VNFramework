@@ -1,4 +1,5 @@
-﻿using VNFramework.Interfaces.Scene;
+﻿using VNFramework.Core.Helpers;
+using VNFramework.Interfaces.Scene;
 
 namespace VNFramework.Core.Scene
 {
@@ -6,10 +7,7 @@ namespace VNFramework.Core.Scene
     {
         public string GetText()
         {
-            string lineBreak = System.Environment.NewLine;
-            return $"TESTE {lineBreak} " +
-                   $"TESTE {lineBreak} " +
-                   $"TESTE {lineBreak} ";
+            return ResourceHelpers.LoadScriptText("Scene01");
         }
     }
 }

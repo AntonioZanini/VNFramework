@@ -9,7 +9,7 @@ namespace VNFramework.Core.Dialogue
     {
         private Coroutine speaking = null;
         private bool isWaitingForUserInput = false;
-        private string targetSpeechText = string.Empty;
+        private string previousSpeechText = string.Empty;
         private bool skip = false;
 
         public IDialogueSystemElements Elements { get; set; }
@@ -20,7 +20,7 @@ namespace VNFramework.Core.Dialogue
         public void Say(ISpeech speech)
         {
             StopSpeaking();
-            Elements.SpeechText = speech.AdditiveSpeech ? targetSpeechText : string.Empty;
+            //Elements.SpeechText = speech.AdditiveSpeech ? previousSpeechText : string.Empty;
             speaking = BaseHelpers.StartCoroutine(Speaking(speech));
         }
 
@@ -46,8 +46,7 @@ namespace VNFramework.Core.Dialogue
             Elements.DialoguePanel.SetActive(true);
             Elements.ApplySpeechSettings(speech.SpeechSettings);
             Elements.SpeakerText = speech.SpeakerName;
-            string additiveBaseText = speech.AdditiveSpeech ? Elements.SpeechText : string.Empty;
-            targetSpeechText = additiveBaseText + speech.SpeechText;
+            previousSpeechText = Elements.SpeechText;
 
             var textPresenter = GetPresenter(speech);
             isWaitingForUserInput = false;
@@ -71,7 +70,7 @@ namespace VNFramework.Core.Dialogue
 
         ITextPresenter GetPresenter(ISpeech speech)
         {
-            return new TextPresenter(speech, speech.AdditiveSpeech ? targetSpeechText : string.Empty);
+            return new TextPresenter(speech, speech.AdditiveSpeech ? previousSpeechText : string.Empty);
         }
 
     }

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using VNFramework.Interfaces.Scene;
 
-namespace Assets.Scripts.VNFramework.Core.Scene
+namespace VNFramework.Core.Scene
 {
     public class ScriptItem : IScriptItem
     {
@@ -13,8 +13,9 @@ namespace Assets.Scripts.VNFramework.Core.Scene
 
         public void Execute(string itemText)
         {
+            ClearCommands();
             LoadCommands(itemText);
-            foreach(string commandText in allCommandTexts)
+            foreach (string commandText in allCommandTexts)
             {
                 ICommand command = CommandFactory.GetCommand(commandText);
                 command.Execute();
@@ -29,6 +30,11 @@ namespace Assets.Scripts.VNFramework.Core.Scene
                     StringSplitOptions.RemoveEmptyEntries
                 )
             );
+        }
+
+        private void ClearCommands()
+        {
+            allCommandTexts.Clear();
         }
     }
 }

@@ -8,6 +8,7 @@ namespace VNFramework.Core.Helpers
     {
         private static IEnumerable<string> characterSpriteFolder = new string[] { "Sprites" };
         private static IEnumerable<string> charactersFolder = new string[] { "Characters" };
+        private static IEnumerable<string> scenesFolder = new string[] { "SceneScripts"};
         private static T LoadResource<T>(params string[] path) where T : Object
         {
             return Resources.Load<T>(CreatePath(path));
@@ -69,5 +70,12 @@ namespace VNFramework.Core.Helpers
             path.Add(characterName);
             return LoadPrefab(path.ToArray());
         }
+        public static string LoadScriptText(string scriptName)
+        {
+            var path = new List<string>(scenesFolder);
+            path.Add(scriptName);
+            return LoadResource<TextAsset>(path.ToArray()).text;
+        }
+
     }
 }

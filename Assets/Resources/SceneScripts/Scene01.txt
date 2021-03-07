@@ -1,0 +1,3 @@
+﻿dlg "Miu" "Olá?"
+dlg "Miu" "Tudo bem..."
+dlg "Miu" "com você?" A

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using VNFramework.Interfaces.Scene;
 
-namespace Assets.Scripts.VNFramework.Core.Scene
+namespace VNFramework.Core.Scene
 {
     public class Scripter : IScripter
     {
@@ -25,7 +25,6 @@ namespace Assets.Scripts.VNFramework.Core.Scene
         {
             if (!IsDone)
             {
-                
                 scriptItem.Execute(scriptLines[currentScriptLine]);
                 currentScriptLine++;
             }
