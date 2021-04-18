@@ -1,22 +1,38 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using VNFramework.Interfaces.Dialogue;
 
 namespace VNFramework.Core.Dialogue
 {
-    public class LineProcessor : ILineProcessor
+    public class LineProcessor<T> : ILineProcessor where T : ILineSegment 
     {
+        ConstructorInfo typeConstructor;
         private static readonly char[] separators = { '<', '>' };
-        private List<LineSegment> segments = new List<LineSegment>();
-        public IEnumerable<ILineSegment> Segments => segments;
+        private List<T> segments = new List<T>();
+        public IEnumerable<ILineSegment> Segments => segments.Cast<ILineSegment>();
+
+        public LineProcessor()
+        {
+            typeConstructor = typeof(T).GetConstructor(
+                types: new Type[] { typeof(string), typeof(bool)
+            });
+        }
 
         public void ProcessLine(string line)
         {
-            var allRawSegments = SplitSegments(line);
+            string[] allRawSegments = SplitSegments(line);
+            segments.Clear();
             for (Int16 i = 0; i < allRawSegments.Length; i++)
             {
-                segments.Add(new LineSegment(allRawSegments[i], IsATag(i)));
+                segments.Add(NewLineSegment(tagText: allRawSegments[i], isATag: IsATag(i)));
             }
+        }
+
+        private T NewLineSegment(string tagText, bool isATag)
+        {
+            return (T)typeConstructor.Invoke(new object[] { tagText, isATag });
         }
 
         private string[] SplitSegments(string line)

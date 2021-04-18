@@ -14,12 +14,13 @@ namespace Assets.Scripts.Setup
         public MonoBehaviour GameObject => Instance;
         public IInputManager InputManager { get; private set; }
         public IDialogueSystem DialogueSystem { get; set; }
+        public ICoroutineAccessor CoroutineAccessor { get; private set; }
 
         void Awake()
         {
             Instance = this;
             Configurations.GlobalConfiguration = this;
-            
+            CoroutineAccessor = new CoroutineAccessor();
         }
 
         public GlobalSetup()

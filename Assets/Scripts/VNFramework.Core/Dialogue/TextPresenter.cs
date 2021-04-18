@@ -1,7 +1,9 @@
-﻿using System.Collections;
+﻿using VNFramework.Interfaces.Global;
+using System.Collections;
 using UnityEngine;
 using VNFramework.Core.Helpers;
 using VNFramework.Interfaces.Dialogue;
+using VNFramework.Core.Settings;
 
 namespace VNFramework.Core.Dialogue
 {
@@ -13,6 +15,8 @@ namespace VNFramework.Core.Dialogue
         private bool skip = false;
         private Coroutine presenting = null;
         private short runsThisFrame = 0;
+        private ICoroutineAccessor coroutineAccessor;
+        private ILineProcessor lineProcessor;
 
         public bool IsPresenting => presenting != null;
 
@@ -22,13 +26,23 @@ namespace VNFramework.Core.Dialogue
         {
             this.speech = speech;
             this.preppendText = preppendText;
+            coroutineAccessor = Configurations.GlobalConfiguration.CoroutineAccessor;
+            lineProcessor = new LineProcessor<LineSegment>();
+        }
+        
+        public TextPresenter(ISpeech speech, ICoroutineAccessor coroutineAccessor, ILineProcessor lineProcessor, string preppendText = "")
+        {
+            this.speech = speech;
+            this.preppendText = preppendText;
+            this.coroutineAccessor = coroutineAccessor;
+            this.lineProcessor = lineProcessor;
         }
 
         public void StopPresenting()
         {
             if (IsPresenting)
             {
-                BaseHelpers.StopCoroutine(presenting);
+                coroutineAccessor.StopCoroutine(presenting);
                 presenting = null;
             }
         }
@@ -36,7 +50,7 @@ namespace VNFramework.Core.Dialogue
         public void Present()
         {
             StopPresenting();
-            presenting = BaseHelpers.StartCoroutine(Presenting());
+            presenting = coroutineAccessor.StartCoroutine(Presenting());
         }
 
         public void Skip() => skip = true;
@@ -44,7 +58,7 @@ namespace VNFramework.Core.Dialogue
         IEnumerator Presenting()
         {
             runsThisFrame = 0;
-            LineProcessor lineProcessor = new LineProcessor();
+            
             lineProcessor.ProcessLine(speech.SpeechText);
             CurrentText = preppendText;
 

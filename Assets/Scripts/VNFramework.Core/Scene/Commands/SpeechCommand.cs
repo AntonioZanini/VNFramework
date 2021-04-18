@@ -1,7 +1,7 @@
-﻿using Assets.Scripts.Setup;
-using System;
+﻿using System;
 using System.Linq;
 using VNFramework.Core.Dialogue;
+using VNFramework.Core.Settings;
 using VNFramework.Interfaces.Scene;
 
 namespace VNFramework.Core.Scene.Commands
@@ -24,9 +24,9 @@ namespace VNFramework.Core.Scene.Commands
 
         public void Execute()
         {
-            GlobalSetup.Instance.DialogueSystem.Say(new Speech()
+            Configurations.GlobalConfiguration.DialogueSystem.Say(new Speech()
             {
-                SpeechSettings = GlobalSetup.Instance.DialogueSystem.Elements.DefaultSpeechSettings,
+                SpeechSettings = Configurations.GlobalConfiguration.DialogueSystem.Elements.DefaultSpeechSettings,
                 SpeakerName = speakerName,
                 SpeechText = speechText,
                 AdditiveSpeech = additive

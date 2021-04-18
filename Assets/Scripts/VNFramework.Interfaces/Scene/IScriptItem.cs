@@ -1,6 +1,6 @@
 ﻿namespace VNFramework.Interfaces.Scene
 {
-    interface IScriptItem
+    public interface IScriptItem
     {
         ICommandFactory CommandFactory { get; set; }
         void Execute(string itemText);

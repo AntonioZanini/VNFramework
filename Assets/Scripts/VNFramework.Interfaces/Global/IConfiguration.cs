@@ -9,5 +9,6 @@ namespace VNFramework.Interfaces.Global
         MonoBehaviour GameObject { get; }
         IInputManager InputManager { get; }
         IDialogueSystem DialogueSystem { get; set; }
+        ICoroutineAccessor CoroutineAccessor { get; }
     }
 }
