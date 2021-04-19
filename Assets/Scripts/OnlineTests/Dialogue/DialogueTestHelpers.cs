@@ -31,14 +31,19 @@ namespace Tests.Dialogue
             return speech;
         }
 
-        internal static ISpeechSettings GetMockSpeechSettings()
+        internal static ISpeechSettings GetMockSpeechSettings(
+            float displaySpeed = 5f, 
+            Font font = null,
+            int fontSize = 45,
+            bool fontOnSpeakerName = false
+            )
         {
             ISpeechSettings speechSettings = Substitute.For<ISpeechSettings>();
-            speechSettings.DisplaySpeed.Returns(5f);
-            speechSettings.Font.Returns(new Font("Arial"));
+            speechSettings.DisplaySpeed.Returns(displaySpeed);
+            speechSettings.Font.Returns(font ?? new Font("Arial"));
             speechSettings.FontColor.Returns(Color.white);
-            speechSettings.FontSize.Returns(45);
-            speechSettings.FontOnSpeakerName.Returns(false);
+            speechSettings.FontSize.Returns(fontSize);
+            speechSettings.FontOnSpeakerName.Returns(fontOnSpeakerName);
             return speechSettings;
         }
 

@@ -22,20 +22,22 @@ namespace VNFramework.Core.Dialogue
 
         public string CurrentText { get; protected set; }
 
-        public TextPresenter(ISpeech speech, string preppendText = "")
+        public TextPresenter()
         {
-            this.speech = speech;
-            this.preppendText = preppendText;
             coroutineAccessor = Configurations.GlobalConfiguration.CoroutineAccessor;
             lineProcessor = new LineProcessor<LineSegment>();
         }
-        
-        public TextPresenter(ISpeech speech, ICoroutineAccessor coroutineAccessor, ILineProcessor lineProcessor, string preppendText = "")
+
+        public TextPresenter(ICoroutineAccessor coroutineAccessor, ILineProcessor lineProcessor)
         {
-            this.speech = speech;
-            this.preppendText = preppendText;
             this.coroutineAccessor = coroutineAccessor;
             this.lineProcessor = lineProcessor;
+        }
+
+        public void Initialize(ISpeech speech, string preppendText)
+        {
+            this.preppendText = preppendText;
+            this.speech = speech;
         }
 
         public void StopPresenting()

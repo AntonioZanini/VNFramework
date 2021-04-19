@@ -1,7 +1,8 @@
 ﻿using System.Collections;
 using UnityEngine;
-using VNFramework.Core.Helpers;
+using VNFramework.Core.Settings;
 using VNFramework.Interfaces.Dialogue;
+using VNFramework.Interfaces.Global;
 
 namespace VNFramework.Core.Dialogue
 {
@@ -11,17 +12,34 @@ namespace VNFramework.Core.Dialogue
         private bool isWaitingForUserInput = false;
         private string previousSpeechText = string.Empty;
         private bool skip = false;
+        private ITextPresenter textPresenter;
+        private ICoroutineAccessor coroutineAccessor;
 
         public IDialogueSystemElements Elements { get; set; }
 
         public bool IsSpeaking() => speaking != null;
         public bool IsWaitingUserInput() => isWaitingForUserInput;
 
+        public DialogueSystem()
+        {
+            textPresenter = new TextPresenter();
+            coroutineAccessor = Configurations.GlobalConfiguration.CoroutineAccessor;
+        }
+
+        public DialogueSystem(
+            ITextPresenter textPresenter, 
+            ICoroutineAccessor coroutineAccessor,
+            IDialogueSystemElements elements)
+        {
+            this.textPresenter = textPresenter;
+            this.coroutineAccessor = coroutineAccessor;
+            Elements = elements;
+        }
+
         public void Say(ISpeech speech)
         {
             StopSpeaking();
-            //Elements.SpeechText = speech.AdditiveSpeech ? previousSpeechText : string.Empty;
-            speaking = BaseHelpers.StartCoroutine(Speaking(speech));
+            speaking = coroutineAccessor.StartCoroutine(Speaking(speech));
         }
 
         public void Skip() => skip = true;
@@ -29,8 +47,8 @@ namespace VNFramework.Core.Dialogue
         public void StopSpeaking()
         {
             if (IsSpeaking()) 
-            { 
-                BaseHelpers.StopCoroutine(speaking);
+            {
+                coroutineAccessor.StopCoroutine(speaking);
                 speaking = null;
             }
         }
@@ -48,7 +66,8 @@ namespace VNFramework.Core.Dialogue
             Elements.SpeakerText = speech.SpeakerName;
             previousSpeechText = Elements.SpeechText;
 
-            var textPresenter = GetPresenter(speech);
+            textPresenter.Initialize(speech, speech.AdditiveSpeech ? previousSpeechText : string.Empty);
+
             isWaitingForUserInput = false;
             textPresenter.Present();
             while (textPresenter.IsPresenting)
@@ -66,11 +85,6 @@ namespace VNFramework.Core.Dialogue
 
             while (isWaitingForUserInput) yield return new WaitForEndOfFrame();
             StopSpeaking();
-        }
-
-        ITextPresenter GetPresenter(ISpeech speech)
-        {
-            return new TextPresenter(speech, speech.AdditiveSpeech ? previousSpeechText : string.Empty);
         }
 
     }
