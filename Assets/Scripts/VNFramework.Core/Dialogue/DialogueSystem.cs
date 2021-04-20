@@ -87,5 +87,13 @@ namespace VNFramework.Core.Dialogue
             StopSpeaking();
         }
 
+        public void Show(ISpeech speech)
+        {
+            Elements.DialoguePanel.SetActive(true);
+            Elements.ApplySpeechSettings(speech.SpeechSettings);
+            Elements.SpeakerText = speech.SpeakerName;
+            Elements.SpeechText = (speech.AdditiveSpeech ? previousSpeechText : string.Empty) + speech.SpeechText;
+        }
+
     }
 }

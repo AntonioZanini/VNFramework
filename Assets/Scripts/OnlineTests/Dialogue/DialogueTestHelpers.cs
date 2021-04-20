@@ -14,6 +14,13 @@ namespace Tests.Dialogue
     {
         internal class MockCoroutineAccessor : MonoBehaviour, ICoroutineAccessor { }
 
+        internal static T CreateMonoBehaviourObject<T>() where T : MonoBehaviour
+        {
+            GameObject gameObject = new GameObject();
+            T monoBehaviourObject = gameObject.AddComponent<T>();
+            return monoBehaviourObject;
+        }
+
         internal static ICoroutineAccessor GetMockCoroutineAccessor()
         {
             GameObject gameObject = new GameObject();
