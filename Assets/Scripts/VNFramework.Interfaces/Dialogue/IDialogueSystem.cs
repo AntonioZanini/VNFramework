@@ -4,7 +4,6 @@
     {
         IDialogueSystemElements Elements { get; set; }
         bool IsSpeaking();
-        bool IsWaitingUserInput();
         void Show(ISpeech speech);
         void Say(ISpeech speech);
         void Skip();

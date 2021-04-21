@@ -1,6 +1,7 @@
 ﻿using NSubstitute;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -47,7 +48,7 @@ namespace Tests.Dialogue
         {
             ISpeechSettings speechSettings = Substitute.For<ISpeechSettings>();
             speechSettings.DisplaySpeed.Returns(displaySpeed);
-            speechSettings.Font.Returns(font ?? new Font("Arial"));
+            speechSettings.Font.Returns(font ?? Resources.Load<Font>(Path.Combine("Fonts", "OpenSans")));
             speechSettings.FontColor.Returns(Color.white);
             speechSettings.FontSize.Returns(fontSize);
             speechSettings.FontOnSpeakerName.Returns(fontOnSpeakerName);
@@ -77,6 +78,15 @@ namespace Tests.Dialogue
                 lineSegments.Add(GetMockLineSegment(segmentText, isATag));
             }
             return lineSegments;
+        }
+
+        internal static Color32 GetColor32(Color color)
+        {
+            byte r = Convert.ToByte(Mathf.FloorToInt(color.r * 255));
+            byte g = Convert.ToByte(Mathf.FloorToInt(color.g * 255));
+            byte b = Convert.ToByte(Mathf.FloorToInt(color.b * 255));
+            byte a = Convert.ToByte(Mathf.FloorToInt(color.a * 255));
+            return new Color32(r, g, b, a);
         }
     }
 }

@@ -9,7 +9,6 @@ namespace VNFramework.Core.Dialogue
     public class DialogueSystem : IDialogueSystem
     {
         private Coroutine speaking = null;
-        private bool isWaitingForUserInput = false;
         private string previousSpeechText = string.Empty;
         private bool skip = false;
         private ITextPresenter textPresenter;
@@ -18,7 +17,6 @@ namespace VNFramework.Core.Dialogue
         public IDialogueSystemElements Elements { get; set; }
 
         public bool IsSpeaking() => speaking != null;
-        public bool IsWaitingUserInput() => isWaitingForUserInput;
 
         public DialogueSystem()
         {
@@ -68,7 +66,6 @@ namespace VNFramework.Core.Dialogue
 
             textPresenter.Initialize(speech, speech.AdditiveSpeech ? previousSpeechText : string.Empty);
 
-            isWaitingForUserInput = false;
             textPresenter.Present();
             while (textPresenter.IsPresenting)
             {
@@ -81,9 +78,7 @@ namespace VNFramework.Core.Dialogue
                 yield return new WaitForSeconds(0.025f);
             }
             Elements.SpeechText = textPresenter.CurrentText;
-            isWaitingForUserInput = true;
 
-            while (isWaitingForUserInput) yield return new WaitForEndOfFrame();
             StopSpeaking();
         }
 

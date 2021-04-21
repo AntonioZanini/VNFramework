@@ -37,7 +37,7 @@ public class Test : MonoBehaviour, IInputHandler
                 DefaultSpeechSettings = new SpeechSettings()
                 {
                     DisplaySpeed = 5f,
-                    Font = new Font("Arial"),
+                    Font = ResourceHelpers.LoadFont("OpenSans"),
                     FontColor = Color.white,
                     FontSize = 45,
                     FontOnSpeakerName = false

@@ -8,6 +8,7 @@ namespace VNFramework.Core.Helpers
     {
         private static IEnumerable<string> characterSpriteFolder = new string[] { "Sprites" };
         private static IEnumerable<string> charactersFolder = new string[] { "Characters" };
+        private static IEnumerable<string> fontsFolder = new string[] { "Fonts" };
         private static IEnumerable<string> scenesFolder = new string[] { "SceneScripts"};
         private static T LoadResource<T>(params string[] path) where T : Object
         {
@@ -58,10 +59,16 @@ namespace VNFramework.Core.Helpers
             return sprites[0];
         }
 
+        public static Font LoadFont(params string[] path)
+        {
+            List<string> actualPath = new List<string>(fontsFolder);
+            actualPath.AddRange(path);
+            return LoadResource<Font>(actualPath.ToArray());
+        }
+        
         public static GameObject LoadPrefab(params string[] path)
         {
             return LoadResource<GameObject>(path);
-            //return (GameObject)LoadResource(path);
         }
 
         public static GameObject LoadCharacterPrefab(string characterName)
