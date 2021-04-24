@@ -1,11 +1,12 @@
 ﻿using UnityEngine;
 using VNFramework.Interfaces.Dialogue;
+using VNFramework.Interfaces.Graphic;
 
 namespace VNFramework.Core.Dialogue
 {
     public class SpeechSettings : ISpeechSettings
     {
-        public Font Font { get; set; }
+        public IFontSettings FontSettings { get; set; }
         public float FontSize { get; set; }
         public Color FontColor { get; set; }
         public bool FontOnSpeakerName { get; set; }
@@ -15,7 +16,7 @@ namespace VNFramework.Core.Dialogue
         {
             return new SpeechSettings()
             {
-                Font = Font,
+                FontSettings = FontSettings,
                 FontSize = FontSize,
                 FontColor = FontColor,
                 FontOnSpeakerName = FontOnSpeakerName,

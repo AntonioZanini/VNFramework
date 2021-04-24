@@ -15,7 +15,7 @@ namespace Tests.Dialogue
             ILineSegment lineSegment = new LineSegment(segmentText: TAG_CONTENT, segmentIsTag: true);
 
             // ACT
-            string tagText = lineSegment.Text;
+            string tagText = lineSegment.DisplayText;
 
             // ASSERT
             Assert.AreEqual($"<{TAG_CONTENT}>", tagText);
@@ -29,7 +29,7 @@ namespace Tests.Dialogue
             ILineSegment lineSegment = new LineSegment(segmentText: TAG_CONTENT, segmentIsTag: false);
 
             // ACT
-            string tagText = lineSegment.Text;
+            string tagText = lineSegment.DisplayText;
 
             // ASSERT
             Assert.AreEqual(TAG_CONTENT, tagText);

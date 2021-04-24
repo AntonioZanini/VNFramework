@@ -37,7 +37,7 @@ namespace VNFramework.Core.Scene.Commands
         {
             string[] actualParams = string.Join(" ", parameters)
                                           .Split(
-                                             new[] { "\"" }, 
+                                             new[] { "'" }, 
                                              StringSplitOptions.RemoveEmptyEntries)
                                           .Where(p => p.Trim().Length > 0)
                                           .ToArray();

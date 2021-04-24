@@ -4,6 +4,8 @@ using UnityEngine;
 using VNFramework.Core.Helpers;
 using VNFramework.Interfaces.Dialogue;
 using VNFramework.Core.Settings;
+using System.Linq;
+using System.Collections.Generic;
 
 namespace VNFramework.Core.Dialogue
 {
@@ -63,13 +65,13 @@ namespace VNFramework.Core.Dialogue
             
             lineProcessor.ProcessLine(speech.SpeechText);
             CurrentText = preppendText;
-
+            
             foreach (var segment in lineProcessor.Segments)
             {
-                if (segment.IsTag) { CurrentText += segment.Text; }
+                if (segment.IsTag) { CurrentText += segment.DisplayText; }
                 else
                 {
-                    foreach (char letter in segment.Text.ToCharArray())
+                    foreach (char letter in segment.DisplayText.ToCharArray())
                     {
                         bool isDone = DisplaySegmentLetter(letter);
                         if (isDone)

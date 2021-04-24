@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
+using VNFramework.Interfaces.Graphic;
 
 namespace VNFramework.Interfaces.Dialogue
 {
@@ -20,7 +21,7 @@ namespace VNFramework.Interfaces.Dialogue
         void SetFontColor(Color fontColor);
         void SetDefaultFontColor();
 
-        void SetFont(Font font, bool fontOnSpeaker);
-        void SetDefaultFont();
+        void SetFontSettings(IFontSettings fontSettings, bool fontOnSpeaker);
+        void SetDefaultFontSettings();
     }
 }

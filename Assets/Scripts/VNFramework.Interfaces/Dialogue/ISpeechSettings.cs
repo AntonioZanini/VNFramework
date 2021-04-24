@@ -1,10 +1,11 @@
 ﻿using UnityEngine;
+using VNFramework.Interfaces.Graphic;
 
 namespace VNFramework.Interfaces.Dialogue
 {
     public interface ISpeechSettings
     {
-        Font Font { get; set; }
+        IFontSettings FontSettings { get; set; }
         float FontSize { get; set; }
         Color FontColor { get; set; }
         bool FontOnSpeakerName { get; set; }

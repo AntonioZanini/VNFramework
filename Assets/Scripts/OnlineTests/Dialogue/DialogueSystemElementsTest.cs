@@ -1,12 +1,11 @@
-﻿using NUnit.Framework;
-using System.Collections;
+﻿using NSubstitute;
+using NUnit.Framework;
 using System.IO;
 using TMPro;
 using UnityEngine;
-using UnityEngine.TestTools;
-using UnityEngine.UI;
 using VNFramework.Core.Dialogue;
 using VNFramework.Interfaces.Dialogue;
+using VNFramework.Interfaces.Graphic;
 
 namespace Tests.Dialogue
 {
@@ -71,9 +70,9 @@ namespace Tests.Dialogue
 
             // ASSERT
 
-            Assert.AreEqual(TMP_FontAsset.CreateFontAsset(speechSettings.Font).sourceFontFile, speechTextDisplay.font.sourceFontFile);
-            Assert.AreEqual(DialogueTestHelpers.GetColor32(speechSettings.FontColor), speechTextDisplay.faceColor);
+            Assert.AreEqual(speechSettings.FontSettings.FontAsset.sourceFontFile, speechTextDisplay.font.sourceFontFile);
             Assert.AreEqual(speechSettings.FontSize, speechTextDisplay.fontSize);
+            Assert.AreEqual(speechSettings.FontColor, DialogueTestHelpers.GetColor(speechTextDisplay.color));
         }
         
         [Test]
@@ -95,7 +94,7 @@ namespace Tests.Dialogue
 
             // ASSERT
 
-            Assert.AreEqual(DialogueTestHelpers.GetColor32(color), speechTextDisplay.faceColor);
+            Assert.AreEqual(color, DialogueTestHelpers.GetColor(speechTextDisplay.color));
         }
         
         [Test]
@@ -123,7 +122,8 @@ namespace Tests.Dialogue
         public void SetFont_ShouldChangeFontOfSpeechTextDisplay_WhenReceivesFontParam()
         {
             // ARRANGE
-            Font font = Resources.Load<Font>(Path.Combine("Fonts", "OpenSans"));
+            IFontSettings mockFontSettings = Substitute.For<IFontSettings>();
+            mockFontSettings.FontAsset.Returns(Resources.Load<TMP_FontAsset>(Path.Combine("Fonts", "OpenSans SDF")));
             IDialogueSystemElements dialogueSystemElements = new DialogueSystemElements()
             {
                 DialoguePanel = new GameObject(),
@@ -134,11 +134,11 @@ namespace Tests.Dialogue
             TextMeshProUGUI speechTextDisplay = (TextMeshProUGUI)dialogueSystemElements.SpeechTextDisplay;
 
             // ACT
-            dialogueSystemElements.SetFont(font, false);
+            dialogueSystemElements.SetFontSettings(mockFontSettings, false);
 
             // ASSERT
 
-            Assert.AreEqual(TMP_FontAsset.CreateFontAsset(font).sourceFontFile, speechTextDisplay.font.sourceFontFile);
+            Assert.AreEqual(mockFontSettings.FontAsset.sourceFontFile, speechTextDisplay.font.sourceFontFile);
         }
 
     }

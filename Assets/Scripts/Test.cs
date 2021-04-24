@@ -12,6 +12,7 @@ using VNFramework.Interfaces.Input;
 using System;
 using VNFramework.Interfaces.Scene;
 using VNFramework.Core.Scene;
+using VNFramework.Core.Graphic;
 
 public class Test : MonoBehaviour, IInputHandler
 {
@@ -37,8 +38,11 @@ public class Test : MonoBehaviour, IInputHandler
                 DefaultSpeechSettings = new SpeechSettings()
                 {
                     DisplaySpeed = 5f,
-                    Font = ResourceHelpers.LoadFont("OpenSans"),
-                    FontColor = Color.white,
+                    FontSettings = new FontSettings() { 
+                        FontAsset = ResourceHelpers.LoadFontAsset("OpenSans SDF"),
+                        FontMaterial = ResourceHelpers.LoadMaterial("Fonts", "OpenSans SDF Presset")
+                    }, 
+                    FontColor = Color.cyan,
                     FontSize = 45,
                     FontOnSpeakerName = false
                 },

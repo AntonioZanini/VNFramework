@@ -14,14 +14,14 @@ namespace Tests.Dialogue
     {
         private class MockLineSegment : ILineSegment
         {
-            private string text;
 
             public bool IsTag { get; private set; }
-            public string Text => IsTag ? $"<{text}>" : text;
+            public string Text { get; private set; }
+            public string DisplayText => IsTag ? $"<{Text}>" : Text;
 
             public MockLineSegment(string segmentText, bool segmentIsTag)
             {
-                text = segmentText;
+                Text = segmentText;
                 IsTag = segmentIsTag;
             }
         }
@@ -93,7 +93,7 @@ namespace Tests.Dialogue
             lineProcessor.ProcessLine(lineText);
 
             // ASSERT
-            Assert.AreEqual(lineText, string.Join(string.Empty, lineProcessor.Segments.Select(s => s.Text)));
+            Assert.AreEqual(lineText, string.Join(string.Empty, lineProcessor.Segments.Select(s => s.DisplayText)));
         }
              
         [Test]
@@ -109,7 +109,7 @@ namespace Tests.Dialogue
             lineProcessor.ProcessLine(lineText2);
 
             // ASSERT
-            Assert.AreEqual(lineText2, string.Join(string.Empty, lineProcessor.Segments.Select(s => s.Text)));
+            Assert.AreEqual(lineText2, string.Join(string.Empty, lineProcessor.Segments.Select(s => s.DisplayText)));
             Assert.AreEqual(13, lineProcessor.Segments.Count());
             Assert.AreEqual(6, lineProcessor.Segments.Count(s => s.IsTag));
         }

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using TMPro;
 using UnityEngine;
 
 namespace VNFramework.Core.Helpers
@@ -42,6 +43,11 @@ namespace VNFramework.Core.Helpers
             return LoadSprites(path.ToArray());
         }
 
+        public static Material LoadMaterial(params string[] path)
+        {
+            return LoadResource<Material>(path);
+        }
+
         public static Sprite LoadCharacterSprite(string characterName, int index)
         {
             var sprites = LoadCharacterSprites(characterName);
@@ -59,11 +65,11 @@ namespace VNFramework.Core.Helpers
             return sprites[0];
         }
 
-        public static Font LoadFont(params string[] path)
+        public static TMP_FontAsset LoadFontAsset(params string[] path)
         {
             List<string> actualPath = new List<string>(fontsFolder);
             actualPath.AddRange(path);
-            return LoadResource<Font>(actualPath.ToArray());
+            return LoadResource<TMP_FontAsset>(actualPath.ToArray());
         }
         
         public static GameObject LoadPrefab(params string[] path)

@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using UnityEngine;
 using VNFramework.Interfaces.Dialogue;
 using VNFramework.Interfaces.Global;
+using VNFramework.Interfaces.Graphic;
 
 namespace Tests.Dialogue
 {
@@ -41,14 +42,16 @@ namespace Tests.Dialogue
 
         internal static ISpeechSettings GetMockSpeechSettings(
             float displaySpeed = 5f, 
-            Font font = null,
+            IFontSettings fontSettings = null,
             int fontSize = 45,
             bool fontOnSpeakerName = false
             )
         {
+            IFontSettings mockFontSettings = Substitute.For<IFontSettings>();
+            mockFontSettings.FontAsset.Returns(Resources.Load<TMPro.TMP_FontAsset>(Path.Combine("Fonts", "OpenSans SDF")));
             ISpeechSettings speechSettings = Substitute.For<ISpeechSettings>();
             speechSettings.DisplaySpeed.Returns(displaySpeed);
-            speechSettings.Font.Returns(font ?? Resources.Load<Font>(Path.Combine("Fonts", "OpenSans")));
+            speechSettings.FontSettings.Returns(fontSettings ?? mockFontSettings);
             speechSettings.FontColor.Returns(Color.white);
             speechSettings.FontSize.Returns(fontSize);
             speechSettings.FontOnSpeakerName.Returns(fontOnSpeakerName);
@@ -58,7 +61,7 @@ namespace Tests.Dialogue
         internal static ILineSegment GetMockLineSegment(string text, bool isATag = false)
         {
             ILineSegment lineSegment = Substitute.For<ILineSegment>();
-            lineSegment.Text.Returns(text);
+            lineSegment.DisplayText.Returns(text);
             lineSegment.IsTag.Returns(isATag);
             return lineSegment;
         }
@@ -87,6 +90,16 @@ namespace Tests.Dialogue
             byte b = Convert.ToByte(Mathf.FloorToInt(color.b * 255));
             byte a = Convert.ToByte(Mathf.FloorToInt(color.a * 255));
             return new Color32(r, g, b, a);
+        }
+
+        internal static Color GetColor(Color32 color)
+        {
+            float r = color.r / 255;
+            float g = color.g / 255;
+            float b = color.b / 255;
+            float a = color.a / 255;
+
+            return new Color(r, g, b, a);
         }
     }
 }

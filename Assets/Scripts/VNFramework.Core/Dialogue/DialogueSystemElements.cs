@@ -2,7 +2,9 @@
 using UnityEngine;
 using UnityEngine.UI;
 using VNFramework.Core.GraphicExtensions;
+using VNFramework.Core.Helpers;
 using VNFramework.Interfaces.Dialogue;
+using VNFramework.Interfaces.Graphic;
 
 namespace VNFramework.Core.Dialogue
 {
@@ -20,9 +22,9 @@ namespace VNFramework.Core.Dialogue
 
         public void ApplySpeechSettings(ISpeechSettings speechSettings)
         {
-            SetFont(speechSettings.Font, speechSettings.FontOnSpeakerName);
-            SetFontColor(speechSettings.FontColor);
+            SetFontSettings(speechSettings.FontSettings, speechSettings.FontOnSpeakerName);
             SetFontSize(speechSettings.FontSize);
+            SetFontColor(speechSettings.FontColor);
         }
 
         public void SetFontSize(float fontSize)
@@ -56,8 +58,8 @@ namespace VNFramework.Core.Dialogue
                     SetDefaultFontColor();
                     return;
                 }
-                SpeechTextElement.faceColor = fontColor.ToColor32();
-                SpeakerNameElement.faceColor = fontColor.ToColor32();
+                SpeechTextElement.color = fontColor.ToColor32();
+                SpeakerNameElement.color = fontColor.ToColor32();
             }
             catch
             {
@@ -67,36 +69,42 @@ namespace VNFramework.Core.Dialogue
 
         public void SetDefaultFontColor()
         {
-            SpeechTextElement.faceColor = DefaultSpeechSettings.FontColor.ToColor32();
-            SpeakerNameElement.faceColor = DefaultSpeechSettings.FontColor.ToColor32();
+            SpeechTextElement.color = DefaultSpeechSettings.FontColor.ToColor32();
+            SpeakerNameElement.color = DefaultSpeechSettings.FontColor.ToColor32();
         }
 
-        public void SetFont(Font font, bool fontOnSpeaker)
+        public void SetFontSettings(IFontSettings fontSettings, bool fontOnSpeaker)
         {
             try
             {
-                if (font == null)
+                if (fontSettings == null)
                 {
-                    SetDefaultFont();
+                    SetDefaultFontSettings();
                     return;
                 }
-                SpeechTextElement.font = font.ToTMP_FontAsset();
-                SpeakerNameElement.font = fontOnSpeaker ?
-                                          font.ToTMP_FontAsset() :
-                                          DefaultSpeechSettings.Font.ToTMP_FontAsset();
+                if (fontSettings.FontAsset != null) { SpeechTextElement.font = fontSettings.FontAsset; }
+                if (fontSettings.FontMaterial != null) { SpeechTextElement.fontMaterial = fontSettings.FontMaterial; }
+
+                if (fontOnSpeaker)
+                {
+                    SpeakerNameElement.font = DefaultSpeechSettings.FontSettings.FontAsset;
+                    return;
+                }
+
+                if (fontSettings.FontAsset != null) { SpeakerNameElement.font = fontSettings.FontAsset; }
+                if (fontSettings.FontMaterial != null) { SpeakerNameElement.fontMaterial = fontSettings.FontMaterial; }
             }
             catch
             {
-                try { SetDefaultFont(); }
+                try { SetDefaultFontSettings(); }
                 catch { }
             }
         }
 
-        public void SetDefaultFont()
+        public void SetDefaultFontSettings()
         {
-            SpeechTextElement.font = DefaultSpeechSettings.Font.ToTMP_FontAsset();
-            SpeakerNameElement.font = DefaultSpeechSettings.Font.ToTMP_FontAsset();
+            SpeakerNameElement.font = DefaultSpeechSettings.FontSettings.FontAsset;
+            SpeechTextElement.font = DefaultSpeechSettings.FontSettings.FontAsset;
         }
-
     }
 }

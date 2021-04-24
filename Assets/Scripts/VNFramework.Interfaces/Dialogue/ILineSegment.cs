@@ -3,6 +3,6 @@
     public interface ILineSegment
     {
         bool IsTag { get; }
-        string Text { get; }
+        string DisplayText { get; }
     }
 }
