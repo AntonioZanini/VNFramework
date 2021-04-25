@@ -1,10 +1,13 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.InputSystem;
+using VNFramework.Core.Settings;
+using VNFramework.Interfaces;
+using VNFramework.Interfaces.Global;
 using VNFramework.Interfaces.Input;
 
-namespace Assets.Scripts.VNFramework.Core.Input
+namespace VNFramework.Core.Input
 {
     public class InputManager : IInputManager
     {
@@ -14,50 +17,42 @@ namespace Assets.Scripts.VNFramework.Core.Input
             Remove
         }
 
-        protected enum InputEventType
+        protected Dictionary<string, IInputMap> actionMaps = new Dictionary<string, IInputMap>();
+
+        protected Coroutine update = null;
+
+        protected ICoroutineAccessor coroutineAccessor;
+
+        public InputManager()
         {
-            performed,
-            canceled,
-            started
+            coroutineAccessor = Configurations.GlobalConfiguration.CoroutineAccessor;
         }
 
-        protected Dictionary<string, InputActionMap> actionMaps = new Dictionary<string, InputActionMap>();
-
-        public void Enable(string mapName)
-        {
-            GetMap(mapName).Enable();
-        }
-
-        public void Disable(string mapName)
-        {
-            GetMap(mapName).Disable();
-        }
+        public bool Active { get; protected set; }
 
         public void AddMap(string mapName)
         {
             if (!actionMaps.ContainsKey(mapName))
             {
-                var map = new InputActionMap(mapName);
+                IInputMap map = new InputMap(mapName);
                 actionMaps.Add(mapName, map);
-                ScriptableObject.CreateInstance<InputActionAsset>().AddActionMap(map);
             }
         }
-        
+
         public void AddMap(IEnumerable<string> mapNames)
         {
             foreach (string mapName in mapNames) { AddMap(mapName); }
         }
 
-        public void AddAction(string mapName, IDataInputAction action)
+        public void AddAction(string mapName, IInputAction action)
         {
-            
             AddAction(GetMap(mapName), action);
         }
 
-        public void AddActions(string mapName, IEnumerable<IDataInputAction> actions)
+        public void AddActions(string mapName, IEnumerable<IInputAction> actions)
         {
-            InputActionMap map = GetMap(mapName);
-            foreach (IDataInputAction action in actions) { AddAction(map, action); }
+            IInputMap map = GetMap(mapName);
+            foreach (IInputAction action in actions) { AddAction(map, action); }
         }
 
         public void Register(string mapName, IInputHandler handler)
@@ -80,68 +75,79 @@ namespace Assets.Scripts.VNFramework.Core.Input
             SetEvent(mapName, actionName, handler, InputEventHandleAction.Remove);
         }
 
-        protected InputActionMap GetMap(string mapName)
+        protected IInputMap GetMap(string mapName)
         {
             if (mapName.Trim().Equals(string.Empty)) { throw new KeyNotFoundException(); }
             if (!actionMaps.ContainsKey(mapName)) { throw new KeyNotFoundException(); }
             return actionMaps[mapName];
         }
 
-        protected void AddAction(InputActionMap map, IDataInputAction action)
+        protected void AddAction(IInputMap map, IInputAction action)
         {
-            map.AddAction(action.name,
-                          action.type,
-                          action.binding,
-                          action.interactions,
-                          action.processors,
-                          action.groups,
-                          action.expectedControlLayout);
+            map.AddAction(action);
         }
 
         protected void SetEvent(string mapName, IInputHandler handler, InputEventHandleAction handleAction)
         {
             if (actionMaps.ContainsKey(mapName))
             {
-                foreach (InputAction action in actionMaps[mapName])
+                foreach (IInputAction action in actionMaps[mapName])
                 {
-                    SetEvent(action, InputEventType.performed, handleAction, handler);
+                    SetEvent(action, InputEventType.KeyUp, handleAction, handler);
                 }
             }
         }
 
         protected void SetEvent(string mapName, string actionName, IInputHandler handler, InputEventHandleAction handleAction)
         {
-            if (actionMaps.ContainsKey(mapName) && actionMaps[mapName].Any(a => a.name.Equals(actionName)))
+            if (actionMaps.ContainsKey(mapName) && actionMaps[mapName].ContainsAction(actionName))
             {
-                SetEvent(actionMaps[mapName][actionName], InputEventType.performed, handleAction, handler);
+                SetEvent(actionMaps[mapName].GetAction(actionName), InputEventType.KeyUp, handleAction, handler);
             }
         }
 
-        protected void SetEvent(InputAction action, InputEventType eventType, InputEventHandleAction handleAction, IInputHandler handler)
+        protected void SetEvent(IInputAction action, InputEventType eventType, InputEventHandleAction handleAction, IInputHandler handler)
         {
             switch (eventType)
             {
-                case InputEventType.performed:
+                case InputEventType.KeyUp:
                     if (handleAction == InputEventHandleAction.Add)
-                        action.performed += handler.HandleInput;
+                        action.KeyUp += handler.HandleInput;
                     else
-                        action.performed -= handler.HandleInput;
+                        action.KeyUp -= handler.HandleInput;
                     break;
-                case InputEventType.canceled:
+                case InputEventType.KeyDown:
                     if (handleAction == InputEventHandleAction.Add)
-                        action.canceled += handler.HandleInput;
+                        action.KeyDown += handler.HandleInput;
                     else
-                        action.canceled -= handler.HandleInput;
-                    break;
-                case InputEventType.started:
-                    if (handleAction == InputEventHandleAction.Add)
-                        action.started += handler.HandleInput;
-                    else
-                        action.started -= handler.HandleInput;
+                        action.KeyDown -= handler.HandleInput;
                     break;
             }
-            
         }
+
+        public void Start()
+        {
+            if (Active) { return; }
+            Active = true;
+            update = coroutineAccessor.StartCoroutine(Update());
+        }
+
+        public void Stop()
+        {
+            if (!Active) { return; }
+            Active = false;
+        }
+
+        IEnumerator Update()
+        {
+            while (Active)
+            {
+                foreach (IInputMap map in actionMaps.Values.Where(m => m.Enabled)) { map.Update(); }
+                yield return new WaitForEndOfFrame();
+            }
+            update = null;
+        }
+
 
     }
 }

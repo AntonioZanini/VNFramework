@@ -1,4 +1,4 @@
-﻿using Assets.Scripts.VNFramework.Core.Input;
+﻿using VNFramework.Core.Input;
 using UnityEngine;
 using VNFramework.Core.Settings;
 using VNFramework.Interfaces.Dialogue;
@@ -21,11 +21,8 @@ namespace Assets.Scripts.Setup
             Instance = this;
             Configurations.GlobalConfiguration = this;
             CoroutineAccessor = new CoroutineAccessor();
-        }
-
-        public GlobalSetup()
-        {
             InputManager = new InputManager();
         }
+
     }
 }

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using VNFramework.Interfaces.Character;
 
-namespace Assets.Scripts.VNFramework.Core.Character
+namespace VNFramework.Core.Character
 {
     public class CharacterManager : ICharacterManager
     {

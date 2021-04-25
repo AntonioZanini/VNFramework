@@ -1,8 +1,10 @@
 ﻿using Assets.Scripts.Setup;
-using Assets.Scripts.VNFramework.Core.Input;
+//using Assets.Scripts.VNFramework.Core.Input;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.InputSystem;
+using VNFramework.Core.Input;
+using VNFramework.Interfaces.Input;
+//using UnityEngine.InputSystem;
 
 namespace Assets.Scripts
 {
@@ -12,15 +14,15 @@ namespace Assets.Scripts
         {
             var inputManager = GlobalSetup.Instance.InputManager;
             inputManager.AddMap("main");
-            inputManager.AddActions("main", new List<DataInputAction>()
+            inputManager.AddActions("main", new List<IInputAction>()
             {
-                new DataInputAction("advanceDialog", actionBinding: "<Keyboard>/space"),
-                new DataInputAction("changeExpression", actionBinding: "<Keyboard>/e")
+                new InputAction("advanceDialog", KeyCode.Space),
+                new InputAction("changeExpression", KeyCode.E)
             }
             );
             inputManager.Register("main", "advanceDialog", Test.Instance);
             inputManager.Register("main", "changeExpression", Test.Instance);
-            inputManager.Enable("main");
+            inputManager.Start();
         }
     }
 }

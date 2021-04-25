@@ -5,14 +5,12 @@ using VNFramework.Core.Dialogue;
 using Assets.Scripts.Setup;
 using VNFramework.Core.Character;
 using VNFramework.Interfaces.Character;
-using Assets.Scripts.VNFramework.Core.Character;
 using VNFramework.Core.Helpers;
-using Assets.Scripts.VNFramework.Core.Input;
-using VNFramework.Interfaces.Input;
 using System;
 using VNFramework.Interfaces.Scene;
 using VNFramework.Core.Scene;
 using VNFramework.Core.Graphic;
+using VNFramework.Interfaces.Input;
 
 public class Test : MonoBehaviour, IInputHandler
 {
@@ -84,9 +82,9 @@ public class Test : MonoBehaviour, IInputHandler
         return ResourceHelpers.LoadCharacterSingleSprite($"{character.Name.ToLower()}_{expression}", "Miu");
     }
 
-    public void HandleInput(UnityEngine.InputSystem.InputAction.CallbackContext context)
+    public void HandleInput(IInputArgs args)
     {
-        switch (context.action.name)
+        switch (args.ActionName)
         {
             case "advanceDialog":
                 AdvanceDialog();

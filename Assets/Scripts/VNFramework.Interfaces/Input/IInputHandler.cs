@@ -1,9 +1,7 @@
-﻿using static UnityEngine.InputSystem.InputAction;
-
-namespace VNFramework.Interfaces.Input
+﻿namespace VNFramework.Interfaces.Input
 {
     public interface IInputHandler
     {
-        void HandleInput(CallbackContext context);
+        void HandleInput(IInputArgs args);
     }
 }

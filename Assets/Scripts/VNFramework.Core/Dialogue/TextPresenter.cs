@@ -1,11 +1,8 @@
-﻿using VNFramework.Interfaces.Global;
-using System.Collections;
+﻿using System.Collections;
 using UnityEngine;
-using VNFramework.Core.Helpers;
-using VNFramework.Interfaces.Dialogue;
 using VNFramework.Core.Settings;
-using System.Linq;
-using System.Collections.Generic;
+using VNFramework.Interfaces.Dialogue;
+using VNFramework.Interfaces.Global;
 
 namespace VNFramework.Core.Dialogue
 {
