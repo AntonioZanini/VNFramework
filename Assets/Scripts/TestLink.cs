@@ -69,8 +69,18 @@ public class TestLink : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 
     private TMP_MeshInfo[] m_cachedMeshInfoVertexData;
 
+    void RestoreWord(int wordIndex)
+    {
+        TMP_WordInfo wInfo = m_TextMeshPro.textInfo.wordInfo[wordIndex];
+        for (int charIndex = wInfo.firstCharacterIndex; charIndex < wInfo.firstCharacterIndex + wInfo.characterCount; charIndex++)
+        {
+            RestoreCachedVertexAttributes(charIndex);
+        }
+    }
+
     void RestoreCachedVertexAttributes(int index)
     {
+        
         if (index == -1 || index > m_TextMeshPro.textInfo.characterCount - 1) return;
 
         // Get the index of the material / sub text object used by this character.
@@ -188,125 +198,187 @@ public class TestLink : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
         }
     }
 
+    void ResizeWords(TMP_WordInfo wInfo)
+    {
+        for (int charIndex = wInfo.firstCharacterIndex; charIndex < wInfo.firstCharacterIndex + wInfo.characterCount; charIndex++)
+        {
+            // Get the index of the material / sub text object used by this character.
+            int materialIndex = m_TextMeshPro.textInfo.characterInfo[charIndex].materialReferenceIndex;
+
+            // Get the index of the first vertex of the selected character.
+            int vertexIndex = m_TextMeshPro.textInfo.characterInfo[charIndex].vertexIndex;
+
+            // Get a reference to the vertices array.
+            Vector3[] vertices = m_TextMeshPro.textInfo.meshInfo[materialIndex].vertices;
+
+            // Determine the center point of the character.
+            Vector2 charMidBasline = (vertices[vertexIndex + 0] + vertices[vertexIndex + 2]) / 2;
+
+            // Need to translate all 4 vertices of the character to aligned with middle of character / baseline.
+            // This is needed so the matrix TRS is applied at the origin for each character.
+            Vector3 offset = charMidBasline;
+
+            // Translate the character to the middle baseline.
+            vertices[vertexIndex + 0] = vertices[vertexIndex + 0] - offset;
+            vertices[vertexIndex + 1] = vertices[vertexIndex + 1] - offset;
+            vertices[vertexIndex + 2] = vertices[vertexIndex + 2] - offset;
+            vertices[vertexIndex + 3] = vertices[vertexIndex + 3] - offset;
+
+            float zoomFactor = 1.5f;
+
+            // Setup the Matrix for the scale change.
+            m_matrix = Matrix4x4.TRS(Vector3.zero, Quaternion.identity, Vector3.one * zoomFactor);
+
+            // Apply Matrix operation on the given character.
+            vertices[vertexIndex + 0] = m_matrix.MultiplyPoint3x4(vertices[vertexIndex + 0]);
+            vertices[vertexIndex + 1] = m_matrix.MultiplyPoint3x4(vertices[vertexIndex + 1]);
+            vertices[vertexIndex + 2] = m_matrix.MultiplyPoint3x4(vertices[vertexIndex + 2]);
+            vertices[vertexIndex + 3] = m_matrix.MultiplyPoint3x4(vertices[vertexIndex + 3]);
+
+            // Translate the character back to its original position.
+            vertices[vertexIndex + 0] = vertices[vertexIndex + 0] + offset;
+            vertices[vertexIndex + 1] = vertices[vertexIndex + 1] + offset;
+            vertices[vertexIndex + 2] = vertices[vertexIndex + 2] + offset;
+            vertices[vertexIndex + 3] = vertices[vertexIndex + 3] + offset;
+
+
+            // Get a reference to the meshInfo of the selected character.
+            TMP_MeshInfo meshInfo = m_TextMeshPro.textInfo.meshInfo[materialIndex];
+
+            // Get the index of the last character's vertex attributes.
+            int lastVertexIndex = vertices.Length - 4;
+
+            // Swap the current character's vertex attributes with those of the last element in the vertex attribute arrays.
+            // We do this to make sure this character is rendered last and over other characters.
+            meshInfo.SwapVertexData(vertexIndex, lastVertexIndex);
+        }
+
+        // Need to update the appropriate 
+        m_TextMeshPro.UpdateVertexData(TMP_VertexDataUpdateFlags.All);
+
+    }
+
     void LateUpdate()
     {
         if (isHoveringObject)
         {
-            int charIndex = TMP_TextUtilities.FindIntersectingCharacter(m_TextMeshPro, Input.mousePosition, m_Camera, true);
+            int wordIndex = TMP_TextUtilities.FindIntersectingWord(m_TextMeshPro, Input.mousePosition, m_Camera);
 
-            // Undo Swap and Vertex Attribute changes.
-            if (charIndex == -1 || charIndex != m_lastIndex)
+            if (m_selectedWord != -1 && (wordIndex == -1 || wordIndex != m_selectedWord))
             {
-                RestoreCachedVertexAttributes(m_lastIndex);
-                m_lastIndex = -1;
+                // RESET
+                //ResetWordColor();
+                RestoreWord(m_selectedWord);
+                m_selectedWord = -1;
             }
-
-            if (charIndex != -1 && charIndex != m_lastIndex && (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift)))
-            {
-                m_lastIndex = charIndex;
-
-                // Get the index of the material / sub text object used by this character.
-                int materialIndex = m_TextMeshPro.textInfo.characterInfo[charIndex].materialReferenceIndex;
-
-                // Get the index of the first vertex of the selected character.
-                int vertexIndex = m_TextMeshPro.textInfo.characterInfo[charIndex].vertexIndex;
-
-                // Get a reference to the vertices array.
-                Vector3[] vertices = m_TextMeshPro.textInfo.meshInfo[materialIndex].vertices;
-
-                // Determine the center point of the character.
-                Vector2 charMidBasline = (vertices[vertexIndex + 0] + vertices[vertexIndex + 2]) / 2;
-
-                // Need to translate all 4 vertices of the character to aligned with middle of character / baseline.
-                // This is needed so the matrix TRS is applied at the origin for each character.
-                Vector3 offset = charMidBasline;
-
-                // Translate the character to the middle baseline.
-                vertices[vertexIndex + 0] = vertices[vertexIndex + 0] - offset;
-                vertices[vertexIndex + 1] = vertices[vertexIndex + 1] - offset;
-                vertices[vertexIndex + 2] = vertices[vertexIndex + 2] - offset;
-                vertices[vertexIndex + 3] = vertices[vertexIndex + 3] - offset;
-
-                float zoomFactor = 1.5f;
-
-                // Setup the Matrix for the scale change.
-                m_matrix = Matrix4x4.TRS(Vector3.zero, Quaternion.identity, Vector3.one * zoomFactor);
-
-                // Apply Matrix operation on the given character.
-                vertices[vertexIndex + 0] = m_matrix.MultiplyPoint3x4(vertices[vertexIndex + 0]);
-                vertices[vertexIndex + 1] = m_matrix.MultiplyPoint3x4(vertices[vertexIndex + 1]);
-                vertices[vertexIndex + 2] = m_matrix.MultiplyPoint3x4(vertices[vertexIndex + 2]);
-                vertices[vertexIndex + 3] = m_matrix.MultiplyPoint3x4(vertices[vertexIndex + 3]);
-
-                // Translate the character back to its original position.
-                vertices[vertexIndex + 0] = vertices[vertexIndex + 0] + offset;
-                vertices[vertexIndex + 1] = vertices[vertexIndex + 1] + offset;
-                vertices[vertexIndex + 2] = vertices[vertexIndex + 2] + offset;
-                vertices[vertexIndex + 3] = vertices[vertexIndex + 3] + offset;
-
-                // Change Vertex Colors of the highlighted character
-                Color32 c = new Color32(255, 255, 192, 255);
-
-                // Get a reference to the vertex color
-                Color32[] vertexColors = m_TextMeshPro.textInfo.meshInfo[materialIndex].colors32;
-
-                vertexColors[vertexIndex + 0] = c;
-                vertexColors[vertexIndex + 1] = c;
-                vertexColors[vertexIndex + 2] = c;
-                vertexColors[vertexIndex + 3] = c;
-
-
-                // Get a reference to the meshInfo of the selected character.
-                TMP_MeshInfo meshInfo = m_TextMeshPro.textInfo.meshInfo[materialIndex];
-
-                // Get the index of the last character's vertex attributes.
-                int lastVertexIndex = vertices.Length - 4;
-
-                // Swap the current character's vertex attributes with those of the last element in the vertex attribute arrays.
-                // We do this to make sure this character is rendered last and over other characters.
-                meshInfo.SwapVertexData(vertexIndex, lastVertexIndex);
-
-                // Need to update the appropriate 
-                m_TextMeshPro.UpdateVertexData(TMP_VertexDataUpdateFlags.All);
-            }
-        }
-        else
-        {
-            // Restore any character that may have been modified
-            if (m_lastIndex != -1)
-            {
-                RestoreCachedVertexAttributes(m_lastIndex);
-                m_lastIndex = -1;
-            }
-        }
-
-
-        //Check if Mouse intersects any words and if so assign a random color to that word.
-        int wordIndex = TMP_TextUtilities.FindIntersectingWord(m_TextMeshPro, Input.mousePosition, m_Camera);
-
-        // Clear previous word selection.
-        if ( m_selectedWord != -1 && (wordIndex == -1 || wordIndex != m_selectedWord))
-        {
-            TMP_WordInfo wInfo = m_TextMeshPro.textInfo.wordInfo[m_selectedWord];
-
-            ChangeWordColor(m_TextMeshPro, wInfo, originalColor);
-
-            m_selectedWord = -1;
-        }
-
-        if (isHoveringObject)
-        {
-            // Word Selection Handling
-            if (wordIndex != -1 && wordIndex != m_selectedWord && IsMouseOnLink("teste"))
+            else if (wordIndex != m_selectedWord)
             {
                 m_selectedWord = wordIndex;
 
                 TMP_WordInfo wInfo = m_TextMeshPro.textInfo.wordInfo[wordIndex];
 
-                ChangeWordColor(m_TextMeshPro, wInfo, new Color32(255, 0, 0, 255));
+                ChangeWordColor(m_TextMeshPro, wInfo, GetRadomColor());
+                ToBold(m_TextMeshPro, wInfo);
+                //ResizeWords(wInfo);
             }
         }
+        else
+        {
+            if (m_selectedWord != -1) 
+            { 
+                //ResetWordColor();
+                RestoreWord(m_selectedWord);
+            }
+        }
+
+
     }
+
+
+    void ResetWordColor()
+    {
+        TMP_WordInfo wInfo = m_TextMeshPro.textInfo.wordInfo[m_selectedWord];
+        ChangeWordColor(m_TextMeshPro, wInfo, originalColor);
+    }
+    //void LateUpdate()
+    //{
+    //    //if (isHoveringObject)
+    //    //{
+    //    //    int charIndex = TMP_TextUtilities.FindIntersectingCharacter(m_TextMeshPro, Input.mousePosition, m_Camera, true);
+    //    //}
+    //    //else
+    //    //{
+    //    //    // Restore any character that may have been modified
+    //    //    if (m_lastIndex != -1)
+    //    //    {
+    //    //        RestoreCachedVertexAttributes(m_lastIndex);
+    //    //        m_lastIndex = -1;
+    //    //    }
+    //    //}
+
+
+    //    //Check if Mouse intersects any words and if so assign a random color to that word.
+    //    int wordIndex = TMP_TextUtilities.FindIntersectingWord(m_TextMeshPro, Input.mousePosition, m_Camera);
+
+    //    // Clear previous word selection.
+    //    if ( m_selectedWord != -1 && (wordIndex == -1 || wordIndex != m_selectedWord))
+    //    {
+    //        //TMP_WordInfo wInfo = m_TextMeshPro.textInfo.wordInfo[m_selectedWord];
+
+    //        //ChangeWordColor(m_TextMeshPro, wInfo, originalColor);
+
+    //        //m_selectedWord = -1;
+    //    }
+
+    //    if (isHoveringObject)
+    //    {
+    //        // Word Selection Handling
+    //        //if (wordIndex != -1 && wordIndex != m_selectedWord && IsMouseOnLink("teste"))
+    //        //{
+    //        //    //m_selectedWord = wordIndex;
+
+    //        //    //TMP_WordInfo wInfo = m_TextMeshPro.textInfo.wordInfo[wordIndex];
+
+    //        //    //ChangeWordColor(m_TextMeshPro, wInfo, new Color32(255, 0, 0, 255));
+    //        //} 
+    //        //else 
+    //        if (wordIndex != -1 && wordIndex != m_selectedWord)
+    //        {
+    //            m_selectedWord = wordIndex;
+
+    //            TMP_WordInfo wInfo = m_TextMeshPro.textInfo.wordInfo[wordIndex];
+
+    //            for (int charIndex = wInfo.firstCharacterIndex; charIndex < wInfo.characterCount; charIndex++)
+    //            {
+    //                EnlargeCharacter(wordIndex, charIndex);
+    //            }
+    //        }
+    //        else
+    //        {
+
+    //        }
+    //    }
+    //    else
+    //    {
+    //        RestoreCachedVertexAttributes(m_lastIndex);
+    //        m_lastIndex = -1;
+    //    }
+    //}
+
+    public void ToBold(TextMeshProUGUI textMeshPro, TMP_WordInfo wInfo)
+    {
+        for (int i = 0; i < wInfo.characterCount; i++)
+        {
+            int characterIndex = wInfo.firstCharacterIndex + i;
+            TMP_CharacterInfo cInfo = textMeshPro.textInfo.characterInfo[characterIndex];
+            EM LINKS EU POSSO COLOCAR A TAG <B> E RETIRAR NO LEAVE
+        }
+
+        // Update Geometry
+        textMeshPro.UpdateVertexData(TMP_VertexDataUpdateFlags.All);
+    }
+
+    
 
     public void ChangeWordColor(TextMeshProUGUI textMeshPro, TMP_WordInfo wInfo, Color32 color)
     {
