@@ -278,7 +278,13 @@ public class TestLink : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
                 TMP_WordInfo wInfo = m_TextMeshPro.textInfo.wordInfo[wordIndex];
 
                 ChangeWordColor(m_TextMeshPro, wInfo, GetRadomColor());
-                ToBold(m_TextMeshPro, wInfo);
+
+                int linkIndex = TMP_TextUtilities.FindIntersectingLink(m_TextMeshPro, Input.mousePosition, m_Camera);
+                if (linkIndex != -1)
+                { // was a link clicked?
+                    TMP_LinkInfo linkInfo = m_TextMeshPro.textInfo.linkInfo[linkIndex];
+                    ToBold(linkInfo);
+                }
                 //ResizeWords(wInfo);
             }
         }
@@ -365,17 +371,20 @@ public class TestLink : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     //    }
     //}
 
-    public void ToBold(TextMeshProUGUI textMeshPro, TMP_WordInfo wInfo)
+    public void ToBold(TMP_LinkInfo linkInfo)
     {
-        for (int i = 0; i < wInfo.characterCount; i++)
-        {
-            int characterIndex = wInfo.firstCharacterIndex + i;
-            TMP_CharacterInfo cInfo = textMeshPro.textInfo.characterInfo[characterIndex];
-            EM LINKS EU POSSO COLOCAR A TAG <B> E RETIRAR NO LEAVE
-        }
+        if (!linkInfo.GetLinkID().ToUpper().Contains("HOVER_BOLD") || 
+           linkInfo.GetLinkText().ToUpper().Contains("<B>")) { return; }
 
-        // Update Geometry
-        textMeshPro.UpdateVertexData(TMP_VertexDataUpdateFlags.All);
+        var startIndex = linkInfo.linkIdFirstCharacterIndex+ linkInfo.linkIdLength+2;
+        var endIndex = startIndex + linkInfo.linkTextLength;
+
+        var boldContent = $"<b>{linkInfo.GetLinkText()}</b>";
+        string newText = linkInfo.textComponent.text.Substring(0, startIndex);
+        newText += boldContent;
+        newText += linkInfo.textComponent.text.Substring(endIndex);
+
+        linkInfo.textComponent.text = newText;
     }
 
     
