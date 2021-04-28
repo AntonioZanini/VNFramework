@@ -9,23 +9,37 @@ public class TextActions : MonoBehaviour
     private TMP_Text m_TextComponent;
     private Color32 originalColor;
 
+    private TextEventHandler TextEvents;
+
     // Start is called before the first frame update
     void Start()
     {
-        //TextEventHandler.Instance.onLinkEnter += OnLinkEnter;
-        //TextEventHandler.Instance.onLinkLeave += OnLinkLeave;
-        TextEventHandler.Instance.onWordEnter.AddListener(OnWordEnter);
-        TextEventHandler.Instance.onWordLeave.AddListener(OnWordLeave);
+        TextEvents = GetComponent<TextEventHandler>();
+
+        TextEvents.onWordEnter.AddListener(OnWordEnter);
+        TextEvents.onWordLeave.AddListener(OnWordLeave);
+        TextEvents.onLinkEnter.AddListener(OnLinkEnter);
+        TextEvents.onLinkLeave.AddListener(OnLinkLeave);
+    }
+
+    private void OnLinkEnter(TextEventHandler.LinkArgs args)
+    {
+        ChangeLinkColor(args.linkTextfirstCharacterIndex, args.linkFullText.Length, GetRadomColor());
+    }
+    
+    private void OnLinkLeave(TextEventHandler.LinkArgs args)
+    {
+        ResetLinkColor(args.linkTextfirstCharacterIndex, args.linkFullText.Length);
     }
 
     private void OnWordEnter(TMP_WordInfo wordInfo, string word, int charIndex, int length)
     {
-        ChangeWordColor(wordInfo, GetRadomColor());
+        //ChangeWordColor(wordInfo, GetRadomColor());
     }    
 
     private void OnWordLeave(TMP_WordInfo wordInfo, string word, int charIndex, int length)
     {
-        ResetWordColor(wordInfo);
+        //ResetWordColor(wordInfo);
     }
 
     private void Awake()
@@ -35,16 +49,6 @@ public class TextActions : MonoBehaviour
 
     // Update is called once per frame
     void Update()
-    {
-        
-    }
-
-    private void OnLinkEnter(TMP_LinkInfo linkInfo, string linkID, string linkText, int linkIndex)
-    {
-
-
-    }
-    private void OnLinkLeave(TMP_LinkInfo linkInfo, string linkID, string linkText, int linkIndex)
     {
         
     }
@@ -64,12 +68,29 @@ public class TextActions : MonoBehaviour
         ChangeWordColor(wInfo, originalColor);
     }
 
+    void ResetLinkColor(int startIndex, int length)
+    {
+        ChangeLinkColor(startIndex, length, originalColor);
+    }
+
     public void ChangeWordColor(TMP_WordInfo wInfo, Color32 color)
     {
         for (int i = 0; i < wInfo.characterCount; i++)
         {
             int characterIndex = wInfo.firstCharacterIndex + i;
             TMP_CharacterInfo cInfo = m_TextComponent.textInfo.characterInfo[characterIndex];
+            ChangeLetterColor(m_TextComponent, cInfo, color);
+        }
+
+        // Update Geometry
+        m_TextComponent.UpdateVertexData(TMP_VertexDataUpdateFlags.All);
+    }
+
+    public void ChangeLinkColor(int startIndex, int length, Color32 color)
+    {
+        for (int i = startIndex; i < startIndex + length; i++)
+        {
+            TMP_CharacterInfo cInfo = m_TextComponent.textInfo.characterInfo[i];
             ChangeLetterColor(m_TextComponent, cInfo, color);
         }
 

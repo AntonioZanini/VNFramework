@@ -11,6 +11,27 @@ namespace VNFramework.Core.TMPro
     {
         private bool isMouseOver;
 
+        public class LinkArgs
+        {
+            private TMP_LinkInfo linkInfo;
+            private string fullText;
+            public string linkId => linkInfo.GetLinkID();
+            public string linkText => linkInfo.GetLinkText();
+            public string linkFullText => fullText;
+            public int linkIdFirstCharacterIndex => linkInfo.linkIdFirstCharacterIndex;
+            public int linkTextfirstCharacterIndex => linkInfo.linkIdFirstCharacterIndex + linkInfo.linkIdLength + 2;
+
+            public LinkArgs(TMP_LinkInfo info)
+            {
+                linkInfo = info;
+                int actualLength = info.textComponent.text.Substring(linkTextfirstCharacterIndex).IndexOf("</link>");
+                fullText = info.textComponent.text.Substring(linkTextfirstCharacterIndex, actualLength);
+            }
+        }
+
+        [Serializable]
+        public class LinkEvent : UnityEvent<LinkArgs> { }
+
         [Serializable]
         public class CharacterEnterEvent : UnityEvent<char, int> { }
 
@@ -45,12 +66,10 @@ namespace VNFramework.Core.TMPro
         public LineEnterEvent onLineEnter { get; set; }
         public LineLeaveEvent onLineLeave { get; set; }
 
-        public event Action<TMP_LinkInfo, string, string, int> onLinkEnter;
-        public event Action<TMP_LinkInfo, string, string, int> onLinkLeave;
+        public LinkEvent onLinkEnter { get; set; }
+        public LinkEvent onLinkLeave { get; set; }
         public CharacterLeaveEvent onCharacterLeave { get; set; }
         public SpriteLeaveEvent onSpriteLeave { get; set; }
-
-        public static TextEventHandler Instance { get; private set; }
 
         private TMP_Text m_TextComponent;
 
@@ -66,12 +85,12 @@ namespace VNFramework.Core.TMPro
         {
             onWordEnter = new WordEvent();
             onWordLeave = new WordEvent();
+            onLinkEnter = new LinkEvent();
+            onLinkLeave = new LinkEvent();
         }
 
         void Awake()
         {
-            Instance = this;
-
             // Get a reference to the text component.
             m_TextComponent = gameObject.GetComponent<TMP_Text>();
 
@@ -118,7 +137,7 @@ namespace VNFramework.Core.TMPro
                 if (m_selectedLink != -1)
                 {
                     TMP_LinkInfo lastLinkInfo = m_TextComponent.textInfo.linkInfo[m_selectedLink];
-                    SendOnLinkLeave(lastLinkInfo, lastLinkInfo.GetLinkID(), lastLinkInfo.GetLinkText(), m_selectedLink);
+                    SendOnLinkLeave(new LinkArgs(lastLinkInfo));
                     m_selectedLink = -1;
                 }
                 return;
@@ -141,18 +160,18 @@ namespace VNFramework.Core.TMPro
                 if (m_selectedLink != -1)
                 {
                     TMP_LinkInfo lastLinkInfo = m_TextComponent.textInfo.linkInfo[m_selectedLink];
-                    SendOnLinkLeave(lastLinkInfo, lastLinkInfo.GetLinkID(), lastLinkInfo.GetLinkText(), m_selectedLink);
+                    SendOnLinkLeave(new LinkArgs(lastLinkInfo));
                 }
 
                 m_selectedLink = linkIndex;
                 TMP_LinkInfo linkInfo = m_TextComponent.textInfo.linkInfo[linkIndex];
 
-                SendOnLinkEnter(linkInfo, linkInfo.GetLinkID(), linkInfo.GetLinkText(), linkIndex);
+                SendOnLinkEnter(new LinkArgs(linkInfo));
             }
             else if (m_selectedLink != -1 && linkIndex == -1)
             {
                 TMP_LinkInfo lastLinkInfo = m_TextComponent.textInfo.linkInfo[m_selectedLink];
-                SendOnLinkLeave(lastLinkInfo, lastLinkInfo.GetLinkID(), lastLinkInfo.GetLinkText(), m_selectedLink);
+                SendOnLinkLeave(new LinkArgs(lastLinkInfo));
                 m_selectedLink = -1;
             }
         }
@@ -270,11 +289,11 @@ namespace VNFramework.Core.TMPro
 
         private void SendOnLineLeave(string line, int charIndex, int length) => onLineLeave?.Invoke(line, charIndex, length);
 
-        private void SendOnLinkEnter(TMP_LinkInfo linkInfo, string linkID, string linkText, int linkIndex)
-            => onLinkEnter?.Invoke(linkInfo, linkID, linkText, linkIndex);
+        private void SendOnLinkEnter(LinkArgs args)
+            => onLinkEnter?.Invoke(args);
 
-        private void SendOnLinkLeave(TMP_LinkInfo linkInfo, string linkID, string linkText, int linkIndex)
-            => onLinkLeave?.Invoke(linkInfo, linkID, linkText, linkIndex);
+        private void SendOnLinkLeave(LinkArgs args)
+            => onLinkLeave?.Invoke(args);
 
     }
 }
