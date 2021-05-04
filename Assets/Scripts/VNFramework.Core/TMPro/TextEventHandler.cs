@@ -17,15 +17,17 @@ namespace VNFramework.Core.TMPro
             private string fullText;
             public string linkId => linkInfo.GetLinkID();
             public string linkText => linkInfo.GetLinkText();
-            public string linkFullText => fullText;
+            public string linkRawText => fullText;
             public int linkIdFirstCharacterIndex => linkInfo.linkIdFirstCharacterIndex;
-            public int linkTextfirstCharacterIndex => linkInfo.linkIdFirstCharacterIndex + linkInfo.linkIdLength + 2;
+            public int linkRawTextfirstCharacterIndex => linkInfo.linkIdFirstCharacterIndex + linkInfo.linkIdLength + 2;
+            public int linkTextfirstCharacterIndex => linkInfo.linkTextfirstCharacterIndex;
+            public TMP_Text TextComponent => linkInfo.textComponent;
 
             public LinkArgs(TMP_LinkInfo info)
             {
                 linkInfo = info;
-                int actualLength = info.textComponent.text.Substring(linkTextfirstCharacterIndex).IndexOf("</link>");
-                fullText = info.textComponent.text.Substring(linkTextfirstCharacterIndex, actualLength);
+                int actualLength = info.textComponent.text.Substring(linkRawTextfirstCharacterIndex).IndexOf("</link>");
+                fullText = info.textComponent.text.Substring(linkRawTextfirstCharacterIndex, actualLength);
             }
         }
 

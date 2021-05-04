@@ -740,7 +740,7 @@ MonoBehaviour:
   m_text: 'Clique <link="aqui"><#0077FF><b><u></u>aquui</u></b></color></link>!
 
     <link="teste
-    hover_bold"><#00FF77><b><u></u>teste</u></b></color></link>'
+    hover_bold"><#00FF77><u></u>teste</u></color></link>'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}

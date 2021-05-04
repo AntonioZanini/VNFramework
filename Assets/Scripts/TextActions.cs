@@ -24,12 +24,14 @@ public class TextActions : MonoBehaviour
 
     private void OnLinkEnter(TextEventHandler.LinkArgs args)
     {
-        ChangeLinkColor(args.linkTextfirstCharacterIndex, args.linkFullText.Length, GetRadomColor());
+        AddBold(args.linkRawTextfirstCharacterIndex, args.linkRawTextfirstCharacterIndex + args.linkRawText.Length, args.linkRawText, args.TextComponent);
+        ChangeLinkColor(args.linkTextfirstCharacterIndex, args.linkText.Length, GetRadomColor());
     }
     
     private void OnLinkLeave(TextEventHandler.LinkArgs args)
     {
-        ResetLinkColor(args.linkTextfirstCharacterIndex, args.linkFullText.Length);
+        RemoveBold(args.linkRawTextfirstCharacterIndex, args.linkRawTextfirstCharacterIndex + args.linkRawText.Length, args.linkRawText, args.TextComponent);
+        ResetLinkColor(args.linkTextfirstCharacterIndex, args.linkText.Length);
     }
 
     private void OnWordEnter(TMP_WordInfo wordInfo, string word, int charIndex, int length)
@@ -63,9 +65,20 @@ public class TextActions : MonoBehaviour
             );
     }
 
-    void ResetWordColor(TMP_WordInfo wInfo)
+    void AddBold(int startIndex, int endIndex, string rawText, TMP_Text textComponent)
     {
-        ChangeWordColor(wInfo, originalColor);
+        if (rawText.Contains("<b>")) { return; }
+        textComponent.text = textComponent.text.Substring(0, startIndex) +
+                             "<b>" + rawText + "</b>" +
+                             textComponent.text.Substring(endIndex);
+    }   
+
+    void RemoveBold(int startIndex, int endIndex, string rawText, TMP_Text textComponent)
+    {
+        if (!rawText.Contains("<b>") && !rawText.Contains("</b>")) { return; }
+        textComponent.text = textComponent.text.Substring(0, startIndex) +
+                             rawText.Replace("<b>", string.Empty).Replace("</b>", string.Empty) +
+                             textComponent.text.Substring(endIndex);
     }
 
     void ResetLinkColor(int startIndex, int length)
